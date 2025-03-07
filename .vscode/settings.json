@@ -1,0 +1,35 @@
+{
+    "C_Cpp.autocomplete": "disabled",
+    "C_Cpp.formatting": "disabled",
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/workspaces/symexpr/build/debug",
+            "binaryPath": "/workspaces/symexpr/build/debug/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/workspaces/symexpr/build/debug",
+            "binaryPath": "/workspaces/symexpr/build/debug/test",
+            "binaryArgs": []
+        }
+    ],
+    "makefile.configurations": [
+        {
+            "name": "Debug (g++)",
+            "problemMatchers": [
+                "$gcc"
+            ],
+            "makeArgs": []
+        },
+        {
+            "name": "Debug (clang++)",
+            "problemMatchers": [
+                "$gcc"
+            ],
+            "makeArgs": ["CXX=clang++"]
+        },
+    ],
+    "makefile.compileCommandsPath": "compile_commands.json"
+}

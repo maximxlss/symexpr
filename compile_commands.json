@@ -1,0 +1,12 @@
+[
+    {
+        "command": "g++ -g --std=c++23 -pedantic -Wall tests/tests.cpp -c -o build/debug/tests.o",
+        "directory": "/workspaces/symexpr",
+        "file": "/workspaces/symexpr/tests/tests.cpp"
+    },
+    {
+        "command": "g++ -g --std=c++23 -pedantic -Wall src/symexpr.cpp -c -o build/debug/symexpr.o",
+        "directory": "/workspaces/symexpr",
+        "file": "/workspaces/symexpr/src/symexpr.cpp"
+    }
+]
