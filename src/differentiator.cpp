@@ -50,14 +50,12 @@ int main(int argc, char* argv[]) {
                 }
                 std::cout << expr.eval() << std::endl;
             } catch (const std::invalid_argument& e) {
-                if (std::string(e.what()).find("Expected end of input") != std::string::npos) {
-                    Expression<complex> expr(expr_str);
-                    for (auto [var, val]: values_map) {
-                        expr = expr.subs(var, val);
-                    }
-                    complex val = expr.eval();
-                    std::cout << val.real() << " + " << val.imag() << "i" << std::endl;
+                Expression<complex> expr(expr_str);
+                for (auto [var, val]: values_map) {
+                    expr = expr.subs(var, val);
                 }
+                complex val = expr.eval();
+                std::cout << val.real() << " + " << val.imag() << "i" << std::endl;
             }
         } else {
             Expression<complex> expr(expr_str);

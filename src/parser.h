@@ -109,8 +109,17 @@ private:
                 throw std::invalid_argument("Function '" + name + "' must have an argument");
             }
     
-            if (name == "pi") return Expression<Number>(M_PI);
-            if (name == "e") return Expression<Number>(M_E);
+            if (name == "pi") {
+                return Expression<Number>(M_PI);
+            }
+            if (name == "e") {
+                return Expression<Number>(M_E);
+            }
+            if constexpr (std::is_same_v<Number, complex>) {
+                if (name == "i") {
+                    return Expression<complex>(complex(0, 1));
+                }
+            }
             
             return Expression<Number>::var(name);
         }

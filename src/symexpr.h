@@ -81,9 +81,21 @@ struct NumExpr : Expr<Number> {
         return Expression<Number>(Number(0));
     }
     std::string to_string() const override {
-        std::stringstream ss;
-        ss << value;
-        return ss.str();
+        if constexpr (std::is_same_v<Number, complex>) {
+            std::stringstream ss;
+            if (value.real() == 0) {
+                ss << value.imag() << "i";
+            } else if (value.imag() == 0) {
+                ss << value.real();
+            } else {
+                ss << "(" << value.real() << " + " << value.imag() << "i)";
+            }
+            return ss.str();
+        } else {
+            std::stringstream ss;
+            ss << value;
+            return ss.str();
+        }
     }
     int precedence() const override {
         return 4;
