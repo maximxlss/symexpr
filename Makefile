@@ -5,7 +5,7 @@ BUILD_FOLDER ?= build
 PROJECT_NAME = symexpr
 
 # additional targets
-ADDONS = main
+ADDONS = differentiator
 
 RELEASE ?= 0
 ifeq ($(RELEASE), 0)
@@ -34,11 +34,11 @@ $(BUILD_FOLDER):
 	mkdir -p $(BUILD_FOLDER)
 
 # build lib object
-$(BUILD_FOLDER)/$(PROJECT_NAME).o: src/$(PROJECT_NAME).cpp src/$(PROJECT_NAME).h | $(BUILD_FOLDER)
+$(BUILD_FOLDER)/$(PROJECT_NAME).o: src/$(PROJECT_NAME).cpp src/*.h | $(BUILD_FOLDER)
 	$(COMPILE) $< -c -o $@
 
 # build tests
-$(BUILD_FOLDER)/tests.o: tests/tests.cpp src/$(PROJECT_NAME).h tests/utils.h | $(BUILD_FOLDER)
+$(BUILD_FOLDER)/tests.o: tests/tests.cpp src/*.h tests/utils.h | $(BUILD_FOLDER)
 	$(COMPILE) $< -c -o $@
 
 # link tests
@@ -46,7 +46,7 @@ $(BUILD_FOLDER)/test: $(BUILD_FOLDER)/tests.o $(BUILD_FOLDER)/$(PROJECT_NAME).o 
 	$(COMPILE) $^ -o $@
 
 # build addons
-$(ADDONS:%=$(BUILD_FOLDER)/%.o): $(BUILD_FOLDER)/%.o: src/%.cpp src/$(PROJECT_NAME).h | $(BUILD_FOLDER)
+$(ADDONS:%=$(BUILD_FOLDER)/%.o): $(BUILD_FOLDER)/%.o: src/%.cpp src/*.h | $(BUILD_FOLDER)
 	$(COMPILE) $< -c -o $@
 
 # link addons

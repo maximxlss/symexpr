@@ -1,6 +1,7 @@
-#include"utils.h"
 #include"../src/symexpr.h"
 #include <stdexcept>
+
+#include"utils.h"
 
 void test_basic_numbers() {
     assert_eq(Expression("1").eval(), 1);
@@ -235,6 +236,123 @@ void test_symbolic_differentiation() {
     assert_eq(exp(Expression("x")).diff("x").to_string(), "exp(x)");
 }
 
+void test_lexer() {
+    Lexer lex("123 + abc");
+    assert(lex.peek().is(TOK_NUMBER));
+    assert_eq(lex.peek().str(), "123");
+    assert(lex.peek2().is(TOK_OP));
+    assert_eq(lex.peek2().str(), "+");
+
+    lex.consume();
+    assert(lex.peek().is(TOK_OP));
+    assert_eq(lex.peek().str(), "+");
+    assert(lex.peek2().is(TOK_NAME));
+    assert_eq(lex.peek2().str(), "abc");
+
+    lex.consume();
+    assert(lex.peek().is(TOK_NAME));
+    assert_eq(lex.peek().str(), "abc");
+    assert(lex.peek2().is(TOK_EOF));
+
+    lex.consume();
+    assert(lex.peek().is(TOK_EOF));
+
+    Lexer lex2("-123.456");
+    assert(lex2.peek().is(TOK_OP));
+    assert_eq(lex2.peek().str(), "-");
+    lex2.consume();
+    assert(lex2.peek().is(TOK_NUMBER));
+    assert_eq(lex2.peek().str(), "123.456");
+
+    Lexer lex3("sin(x)");
+    assert(lex3.peek().is(TOK_NAME));
+    assert_eq(lex3.peek().str(), "sin");
+    assert(lex3.peek2().is(TOK_OP));
+    assert_eq(lex3.peek2().str(), "(");
+
+    Lexer lex4("2^3");
+    assert(lex4.peek().is(TOK_NUMBER));
+    assert(lex4.peek2().is(TOK_OP));
+    assert_eq(lex4.peek2().str(), "^");
+
+    Lexer lex5("   ");
+    assert(lex5.peek().is(TOK_EOF));
+}
+
+void test_parsing() {
+    assert_eq(Expression("1 + 2").eval(), 3);
+    assert_eq(Expression("2 * 3").eval(), 6);
+    assert_eq(Expression("6 / 2").eval(), 3);
+    assert_eq(Expression("2 ^ 3").eval(), 8);
+    assert_eq(Expression("1 + 2 * 3").eval(), 7);
+    assert_eq(Expression("(1 + 2) * 3").eval(), 9);
+    assert_eq(Expression("-2 * 3").eval(), -6);
+    assert_eq(Expression("sin(0)").eval(), 0);
+    assert_eq(Expression("cos(0)").eval(), 1);
+    assert_eq(Expression("exp(0)").eval(), 1);
+    assert_eq(Expression("ln(1)").eval(), 0);
+    assert_eq(Expression("x + y").subs("x", 1).subs("y", 2).eval(), 3);
+    assert_eq(Expression("sin(x + y)").subs("x", 0).subs("y", 0).eval(), 0);
+
+    assert_eq(Expression("1 + 2 + 3").eval(), 6);
+    assert_eq(Expression("1 * 2 * 3").eval(), 6);
+    assert_eq(Expression("8 / 2 / 2").eval(), 2);
+    assert_eq(Expression("2 ^ 2 ^ 2").eval(), 16);
+    
+    assert_eq(Expression("1 + 2 * 3 + 4").eval(), 11);
+    assert_eq(Expression("(1 + 2) * (3 + 4)").eval(), 21);
+    
+    assert_eq(Expression("-(-2)").eval(), 2);
+    assert_eq(Expression("-(1 + 2)").eval(), -3);
+    
+    assert_eq(Expression("sin(cos(0))").eval(), sin(1));
+    assert_eq(Expression("exp(ln(2))").eval(), 2);
+    
+    assert_eq(Expression("x * y + z").subs("x", 2).subs("y", 3).subs("z", 4).eval(), 10);
+    assert_eq(Expression("sin(x) * cos(y)").subs("x", 0).subs("y", 0).eval(), 0);
+    
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("1 + ").eval();
+    });
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("1 2").eval();
+    });
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("()").eval();
+    });
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("sin").eval();
+    });
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("(1 + 2").eval();
+    });
+    assert_throws<std::invalid_argument>([&]() {
+        Expression("1 +* 2").eval();
+    });
+}
+
+void test_symbolic_differentiation_with_parser() {
+    assert_eq(Expression("1").diff("x").to_string(), "0");
+    assert_eq(Expression("x").diff("x").to_string(), "1");
+    assert_eq(Expression("y").diff("x").to_string(), "0");
+
+    assert_eq(Expression("x + y").diff("x").to_string(), "1");
+    assert_eq(Expression("x + x").diff("x").to_string(), "1 + 1");
+    assert_eq(Expression("-x").diff("x").to_string(), "-1");
+    assert_eq(Expression("x * y").diff("x").to_string(), "y");
+    assert_eq(Expression("x * x").diff("x").to_string(), "x + x");
+    assert_eq(Expression("x / y").diff("x").to_string(), "y / (y * y)");
+    assert_eq(Expression("x^2").diff("x").to_string(), "x ^ 2 * 2 / x");
+
+    assert_eq(Expression("sin(x)").diff("x").to_string(), "cos(x)");
+    assert_eq(Expression("cos(x)").diff("x").to_string(), "-sin(x)");
+    assert_eq(Expression("ln(x)").diff("x").to_string(), "1 / x");
+    assert_eq(Expression("exp(x)").diff("x").to_string(), "exp(x)");
+
+    assert_eq(Expression("sin(x + y)").diff("x").to_string(), "cos(x + y)");
+    assert_eq(Expression("(x + y)^2").diff("x").to_string(), "(x + y) ^ 2 * 2 / (x + y)");
+}
+
 int main() {
     test_basic_numbers();
     test_basic_addition();
@@ -246,5 +364,8 @@ int main() {
     test_basic_to_string();
     test_basic_differentiation();
     test_symbolic_differentiation();
+    test_lexer();
+    test_parsing();
+    test_symbolic_differentiation_with_parser();
     summary();
 }

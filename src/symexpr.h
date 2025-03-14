@@ -400,6 +400,9 @@ struct ExpExpr : FunExprImpl<Number, ExpExpr> {
     }
 };
 
+template<typename Number>
+class Parser;
+
 template<typename Number = DefaultNumber>
 struct Expression {
     std::shared_ptr<Expr<Number>> inner;
@@ -407,17 +410,11 @@ struct Expression {
     explicit Expression(std::shared_ptr<Expr<Number>> value) : inner(value) {};
 
     explicit Expression(const std::string& value) {
-        if (!std::all_of(value.begin(), value.end(), [](char c) { return isalnum(c) || c == '-' || c == '.' || c == '_' || c == '\''; })) {
-            throw std::invalid_argument(std::format("Invalid variable or number `{}`. Notice: parsing expressions is not yet implemented.", value));
-        }
-        if (value.empty()) {
-            throw std::invalid_argument("Can't initialize Expression from empty string.");
-        }
-        if (isdigit(value.front()) || value.front() == '.' || value.front() == '-') {
-            inner = std::make_shared<NumExpr<Number>>(parse_number<Number>(value));
-        } else {
-            inner = std::make_shared<VarExpr<Number>>(value);
-        }
+        inner = Parser<Number>(value).parse().inner;
+    }
+
+    static Expression<Number> var(const std::string& name) {
+        return Expression(std::make_shared<VarExpr<Number>>(name));
     }
 
     Expression(std::type_identity_t<Number> value) : inner(std::make_shared<NumExpr<Number>>(value)) {}
@@ -521,3 +518,5 @@ struct std::formatter<Expression<Number>> : std::formatter<std::string> {
         return formatter<string>::format(expr.to_string(), ctx);
     }
 };
+
+#include "parser.h"
