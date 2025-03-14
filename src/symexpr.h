@@ -42,6 +42,20 @@ inline complex parse_number<complex>(const std::string& str) {
     return result;
 }
 
+inline std::string format_complex(complex value, bool wrap_parens = true) {
+    std::stringstream ss;
+    if (value.imag() == 0) {
+        ss << value.real();
+    } else if (value.real() == 0) {
+        ss << value.imag() << "i";
+    } else if (wrap_parens) {
+        ss << "(" << value.real() << " + " << value.imag() << "i)";
+    } else {
+        ss << value.real() << " + " << value.imag() << "i";
+    }
+    return ss.str();
+}
+
 template<typename Number>
 struct Expression;
 
@@ -81,21 +95,7 @@ struct NumExpr : Expr<Number> {
         return Expression<Number>(Number(0));
     }
     std::string to_string() const override {
-        if constexpr (std::is_same_v<Number, complex>) {
-            std::stringstream ss;
-            if (value.real() == 0) {
-                ss << value.imag() << "i";
-            } else if (value.imag() == 0) {
-                ss << value.real();
-            } else {
-                ss << "(" << value.real() << " + " << value.imag() << "i)";
-            }
-            return ss.str();
-        } else {
-            std::stringstream ss;
-            ss << value;
-            return ss.str();
-        }
+        return format_complex(value);
     }
     int precedence() const override {
         return 4;

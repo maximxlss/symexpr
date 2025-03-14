@@ -45,7 +45,7 @@ result=$($DIFFERENTIATOR --eval "3 + 4i * (1 + 2i)")
 assert_equals "-5 + 4i" "$result" "Complex number multiplication"
 
 result=$($DIFFERENTIATOR --eval "(10 + 5i) / (2 + i)")
-assert_equals "5 + 0i" "$result" "Complex number division"
+assert_equals "5" "$result" "Complex number division"
 
 result=$($DIFFERENTIATOR --eval "(3 + 4i) + (1 + 2i)")
 assert_equals "4 + 6i" "$result" "Complex number addition"
@@ -70,5 +70,3 @@ assert_equals "1 + -1i" "$result" "Complex derivative with respect to x"
 
 result=$($DIFFERENTIATOR --diff "sin(x + y*i)" --by y)
 assert_equals "cos(x + y * 1i) * 1i" "$result" "Complex derivative of sin"
-
-echo -e "\nAll tests completed."

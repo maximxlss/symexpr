@@ -54,16 +54,14 @@ int main(int argc, char* argv[]) {
                 for (auto [var, val]: values_map) {
                     expr = expr.subs(var, val);
                 }
-                complex val = expr.eval();
-                std::cout << val.real() << " + " << val.imag() << "i" << std::endl;
+                std::cout << format_complex(expr.eval(), false) << std::endl;
             }
         } else {
             Expression<complex> expr(expr_str);
             for (auto [var, val]: values_map) {
                 expr = expr.subs(var, val);
             }
-            complex val = expr.eval();
-            std::cout << val.real() << " + " << val.imag() << "i" << std::endl;
+            std::cout << format_complex(expr.eval(), false) << std::endl;
         }
         
     }
